@@ -33,28 +33,10 @@
             <div :class="this.canVote ? 'active' : 'disActive'">{{ $t("home.active") }}</div>
           </div>
           <p>
-            Yam Finance YIP-82: Move yUSD funds to yDAI Vault 活跃 Yearn's yUSD
-            vault was their first product and the only one available when YAM
-            launched. Since then, Yearn has developed numerous other vault
-            products and the yUSD vault no longer earns comparable returns to the
-            newer, more robust and flexible products.
-          </p>
-          <p>
-            As we rebalance the Treasury and YDS per YIPs 80, and 81, we have an
-            opportunity to upgrade our yield bearing stable-coins to one of these
-            newer products. yDAI is the most philosophically aligned with our
-            mission as DAI is an un-censorable stablecoin backed by ETH and other
-            assets.
-          </p>
-          <p>
-            Making this change should earn the DAO additional interest from our
-            stablecoins, and although no rates are set in stone, the returns on
-            yDAI should be consistently higher than yUSD due to how the vault is
-            constructed.
-          </p>
-          <p>
-            See the full post with rationale and data here:
-            https://forum.yam.finance/t/yip-82-transition-yusd-to-new-vault/1493
+            REI Network链上治理模块，是未来REI Network链上用户以及团队治理的核心。任何持币者
+            都可通过Governance治理功能发起提案并向全社区公示。同时任何持有REI的用户都可对提案
+            进行投票，最终按照票数更多的结果去执行相关治理方案。REI Network 将会打造一条更自治、
+            更高效的新型公链。
           </p>
         </div>
         <div class="vote">
@@ -68,67 +50,106 @@
           </div>
         </div>
         <div class="vote-number">
-          <div class="numberText">{{ $t("home.vote_number") }}</div>
+          <div class="header-number">
+            <div class="numberText">{{ $t("home.vote_number") }}</div>
+            <div class="totalVote">{{(this.number.totalVote/1e5).toLocaleString(undefined,{maximumFractionDigits: 5})}}</div>
+          </div>
           <ul>
             <li v-for="(item, index) in detailList" :key="index" style="align-items:center">
               <div class="vote-head">
-                <account-image :account="item.userName" :size="15" style="margin-right:10px"></account-image>
-                <div>
-                  {{ item.userName }}
-                </div>
+                <account-image :account="item.userName" :size="15" style="margin-right:6px"></account-image>
+                <div>{{ item.userName }}</div>
               </div>
+              <div>
+                <div class="createdAt">{{ (item.voteGXCNumberHourly/1e5).toLocaleString(undefined,{maximumFractionDigits: 5}) }} GXC</div>
+                <div class="createdAt">{{ new Date(new Date(item.createdAt).getTime()).format('yyyy-MM-dd hh:mm:ss') }}</div>
+              </div>
+              <div class="agree-votes">
                 <div v-if="item.votingstate">{{$t("home.agree")}}</div>
                 <div v-else>{{$t("home.disagree")}}</div>
+              </div>
             </li>
           </ul>
         </div>
       </div>
-      <div class="section-right" v-show="voteResultShow">
+      <div class="section-right">
         <div class="right-fomat">
-          <div style="display:flex;align-items:center">
-            <div class="inforText">{{ $t("home.totalVote") }}</div>
-            <div class="totalVote">{{this.number.totalVote}}</div>
+          <div class="inforText">{{$t("home.information")}}</div>
+          <div class="information">
+            <div>{{$t("home.start_date")}}</div>
+            <div>{{new Date(new Date(this.startTime).getTime()).format('yyyy-MM-dd hh:mm:ss')}}</div>
+          </div>
+          <div class="information">
+            <div>{{$t("home.end_date")}}</div>
+            <div>{{new Date(new Date(this.stopTime).getTime()).format('yyyy-MM-dd hh:mm:ss')}}</div>
+          </div>
+        </div>
+        <div class="right-fomat">
+          <div class="result-header">
+            <div class="header-left">
+              <div class="inforText">{{ $t("home.totalVote") }}</div>
+              <div class="totalVote">{{(this.number.totalVote/1e5).toLocaleString(undefined,{maximumFractionDigits: 5})}}</div>
+            </div>
+            <el-tooltip class="item"
+                        effect="dark"
+                        placement="top-end"                       >
+              <el-button>?</el-button>
+              <div slot="content">{{$t("home.dint")}}</div>
+            </el-tooltip>
           </div>
           <div class="result">
             <div class="result-content">
-              <div>{{$t("home.agree")}}</div>
-              <el-progress
-                :percentage="this.number.voteNumberTrue"
-                :stroke-width="8"
-                color="rgb(73,129,255)"
-              ></el-progress>
+              <div>{{$t('home.agree')}}</div>
+              <div class="progress">
+                <div class="clip-background">
+                    <div class='clip' :style="{width:this.number.voteNumberTrue+'%'}"></div>
+                </div>
+                <div style="width:70px">{{this.number.voteNumberTrue}}%</div>
+              </div>
             </div>
             <div class="result-content">
-              <div>{{$t("home.disagree")}}</div>
-              <el-progress
-                :percentage="this.number.voteNumberFalse"
-                :stroke-width="8"
-                color="rgb(73,129,255)"
-              ></el-progress>
+              <div>{{$t('home.disagree')}}</div>
+              <div class="progress">
+                <div class="clip-background">
+                    <div class='clip' :style="{width:this.number.voteNumberFalse+'%'}"></div>
+                </div>
+                <div style="width:70px">{{this.number.voteNumberFalse}}%</div>
+              </div>
             </div>
           </div>
         </div>
         <div class="right-fomat">
-          <div style="display:flex;align-items:center">
-            <div class="inforText">{{ $t("home.totalUserVote") }}</div>
-            <div class="totalVote">{{this.user.totalUserVote}}</div>
+          <div class="result-header">
+            <div class="header-left">
+              <div class="inforText">{{$t("home.totalUserVote")}}</div>
+              <div class="totalVote">{{this.user.totalUserVote.toLocaleString()}}</div>
+            </div>
+            <el-tooltip class="item"
+                        effect="dark"
+                        placement="top-end"
+                        >
+              <el-button>?</el-button>
+              <div slot="content">{{$t("home.dint")}}</div>
+            </el-tooltip>
           </div>
           <div class="result">
             <div class="result-content">
-              <div>{{$t("home.agree")}}</div>
-              <el-progress
-                :percentage="this.user.voteUserTrue"
-                :stroke-width="8"
-                color="rgb(73,129,255)"
-              ></el-progress>
+              <div>{{$t('home.agree')}}</div>
+              <div class="progress">
+                <div class="clip-background">
+                    <div class='clip' :style="{width:this.user.voteUserTrue+'%'}"></div>
+                </div>
+                <div>{{this.user.voteUserTrue}}%</div>
+              </div>
             </div>
             <div class="result-content">
-              <div>{{$t("home.disagree")}}</div>
-              <el-progress
-                :percentage="this.user.voteUserFalse"
-                :stroke-width="8"
-                color="rgb(73,129,255)"
-              ></el-progress>
+              <div>{{$t('home.disagree')}}</div>
+              <div class="progress">
+                <div class="clip-background">
+                    <div class='clip' :style="{width:this.user.voteUserFalse+'%'}"></div>
+                </div>
+                <div>{{this.user.voteUserFalse}}%</div>
+              </div>
             </div>
           </div>
         </div>
@@ -164,17 +185,18 @@ export default {
       network:process.env.network,
       contractName:process.env.contractName,
       number: {
-          totalVote: 1,
-          voteNumberTrue: 16,
-          voteNumberFalse: 49
+          totalVote: 0,
+          voteNumberTrue: 0,
+          voteNumberFalse: 0
       },
       user: {
-          totalUserVote: 1,
-          voteUserTrue: 22,
-          voteUserFalse: 6
+          totalUserVote: 0,
+          voteUserTrue: 0,
+          voteUserFalse:0
       },
       canVote:true,
-      voteResultShow:true,
+      stopTime:'',
+      startTime:''
     };
   },
   computed: {
@@ -196,37 +218,13 @@ export default {
         }
     })
     this.getVoter()
-    this.getVoteEnds()
+    this.getEndTime()
     this.timer = setInterval(()=>{
       this.getVoter()
     },3000);
-    //判断投票是否结束
-    if (this.canVote) {
-      this.voteResultShow = false;
-    }else{
-      this.voteResultShow = true;
-      //投票结束后,结果
-      axios({
-        method:'get',
-        url:`${process.env.__SERVICE__}/proposal/api/statistics`
-      }).then((resp) => {
-        this.number.totalVote = resp.data.statistics.totalVoteGXCNumber; //投票总数
-        this.number.voteNumberTrue = (resp.data.statistics.totalVoteGXCNumberTrue/this.number.totalVote*100); //投true总数
-        this.number.voteNumberFalse = (resp.data.statistics.totalVoteGXCNumberFalse/this.number.totalVote*100); //投false总数
-        this.user.totalUserVote = resp.data.statistics.voteUserNumber; //投票总人数
-        this.user.voteUserTrue = (resp.data.statistics.voteUserNumberTrue/this.user.totalUserVote*100); //投true总人数
-        this.user.voteUserFalse = (resp.data.statistics.voteUserNumberFalse/this.user.totalUserVote*100); //投false总人数
-        console.log(resp.data);
-      }).catch(resp => {
-        console.log(this.$t("home.request")+resp.status+','+resp.statusText);
-        this.$message({
-          message:his.$t("home.statistics_request")+ resp.status+','+resp.statusText,
-          type: 'error'
-        });
-      });
-    }
+    this.getVoteResult()
+    this.getStartTime()
   },
-
   methods: {
     output() {
       const combined = Array.from(arguments).map(arg => {
@@ -390,8 +388,38 @@ export default {
         });
       });
     },
-    getVoteEnds () {
-      //投票结束的时间
+    //未关闭投票时获取投票信息
+    getNoStopVote () {
+      axios({
+        method:'get',
+        url:`${process.env.__SERVICE__}/proposal/api/voter`
+      }).then((resp)=>{
+        for(var i = 0; i < this.detailList.length; i++){
+          this.number.totalVote += this.detailList[i].voteGXCNumberHourly;
+        }
+        let TrueVote = 0;
+        for(var j = 0; j < this.resultTrueList.length; j++){
+          TrueVote += this.resultTrueList[j].voteGXCNumberHourly;
+          this.number.voteNumberTrue = (TrueVote/this.number.totalVote*100).toFixed(5);
+        }
+        let FalseVote = 0;
+        for(var k = 0; k < this.resultFalseList.length; k++){
+          FalseVote += this.resultFalseList[k].voteGXCNumberHourly;
+          this.number.voteNumberFalse = Number.parseFloat(FalseVote/this.number.totalVote*100).toFixed(5);
+        }
+        this.user.totalUserVote = this.detailList.length;
+        this.user.voteUserTrue = this.resultTrueList.length/this.user.totalUserVote*100; //投true总人数
+        this.user.voteUserFalse = this.resultFalseList.length/this.user.totalUserVote*100; //投false总人数
+      }).catch(resp => {
+        console.log(this.$t("home.request")+resp.status+','+resp.statusText);
+        this.$message({
+          message:this.$t("home.statistics_request")+resp.status+','+resp.statusText,
+          type: 'error'
+        });
+      });
+    },
+    getEndTime () {
+      //投票是否结束
       axios({
         method:'get',
         url:`${process.env.__SERVICE__}/proposal/api/state`
@@ -404,6 +432,48 @@ export default {
           type: 'error'
         });
       });
+    },
+    getStartTime () {
+      //投票开始和结束的时间
+      axios({
+        method:'get',
+        url:`${process.env.__SERVICE__}/proposal/api/date`
+      }).then((resp)=>{
+        this.startTime = resp.data.startTime;
+        this.stopTime = resp.data.stopTime;
+      }).catch(resp => {
+        console.log(this.$t("home.request") +resp.status+','+resp.statusText);
+        this.$message({
+          message:this.$t("home.state_request")+resp.status+','+resp.statusText,
+          type: 'error'
+        });
+      });
+    },
+    //请求投票结果
+    getVoteResult(){
+      // 判断投票是否结束
+      if (!this.canVote) {
+        axios({
+          method:'get',
+          url:`${process.env.__SERVICE__}/proposal/api/statistics`
+        }).then((resp) => {
+          this.number.totalVote = resp.data.statistics.totalVoteGXCNumber; //投票总数
+          this.number.voteNumberTrue = (resp.data.statistics.totalVoteGXCNumberTrue/this.number.totalVote*100); //投true总数
+          this.number.voteNumberFalse = (resp.data.statistics.totalVoteGXCNumberFalse/this.number.totalVote*100); //投false总数
+          this.user.totalUserVote = resp.data.statistics.voteUserNumber; //投票总人数
+          this.user.voteUserTrue = (resp.data.statistics.voteUserNumberTrue/this.user.totalUserVote*100); //投true总人数
+          this.user.voteUserFalse = (resp.data.statistics.voteUserNumberFalse/this.user.totalUserVote*100); //投false总人数
+          console.log(resp.data);
+        }).catch(resp => {
+          console.log(this.$t("home.request")+resp.status+','+resp.statusText);
+          this.$message({
+            message:this.$t("home.statistics_request")+ resp.status+','+resp.statusText,
+            type: 'error'
+          });
+        });
+      }else{
+        this.getNoStopVote()
+      }
     },
     //选择yes or no
     select(i) {
@@ -477,15 +547,18 @@ export default {
         width: 3rem;
         justify-content: space-around;
         border-radius: 16px;
+        cursor: pointer;
         .switch{
           background: rgb(123, 166, 255);
           color: #fff;
           width: 1.4rem;
           padding: 0 4px;
           text-align: center;
+          margin-right: 4px;
         }
         .not-switch{
           color: grey;
+          margin-right: 4px;
         }
       }
   }
@@ -493,7 +566,7 @@ export default {
     display: flex;
     justify-content: space-around;
     // margin-top: 50px;
-    padding: 0 8% 1.5rem 8%;
+    padding: 0 4% 1.5rem 4%;
     background-color: rgb(231, 232, 243);
     .section-left {
       margin-top: 1rem;
@@ -587,28 +660,47 @@ export default {
         margin-top:0.2rem;
         background-color: #FFF;
         border-radius: 10px;
-        padding: 1.2rem;
-        overflow-y: scroll;
-        overflow-x: hidden;
-        max-height: 34rem;
+        padding:0.6rem;
+        .header-number{
+          display: flex;
+          align-items: center;
+          .totalVote{
+            background-color: rgb(123, 166, 255);
+            color: #FFF;
+            padding:0 9px;
+            border-radius: 30px;
+          }
+        }
         .numberText {
           padding: 0.8rem 2%;
         }
         ul {
+          overflow-y: scroll;
+          overflow-x: hidden;
+          max-height: 32rem;
           li {
             list-style: none;
-            padding: 1rem 2%;
+            padding:1rem 2% 0.6rem 2%;
             border-bottom: 1px rgb(178, 181, 205) solid;
             display: flex;
             justify-content: space-between;
             .vote-head {
               display: flex;
               align-items: center;
+              width:120px;
+            }
+            .createdAt{
+              font-size: 12px;
+              color: grey;
             }
             .headImg {
               width: 1rem;
               height: 1rem;
               border-radius: 0.5rem;
+            }
+            .agree-votes{
+              width: 50px;
+              text-align: right;
             }
           }
         }
@@ -655,12 +747,14 @@ export default {
       // float: right;
       width: 30%;
       .inforText {
-        padding: 0.8rem 2%;
+        padding: 0 2%;
+        padding-left: 0px !important;
+        font-weight: 500;
       }
       .totalVote{
         background-color: rgb(123, 166, 255);
         color: #FFF;
-        padding:0 6px;
+        padding:0 9px;
         border-radius: 30px;
       }
       .right-fomat {
@@ -668,12 +762,50 @@ export default {
         background-color: #FFF;
         padding:1.2rem;
         border-radius: 10px;
+        .result-header{
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          .header-left{
+            display:flex;
+            align-items:center;
+            width:82%
+          }
+        }
+        .information{
+          display: flex;
+          justify-content: space-between;
+          margin-top: 12px;
+          margin-bottom:12px;
+          font-size: 15px;
+        }
+        .el-button{
+          width: 30px;
+          height:30px;
+          border-radius: 15px;
+        }
       }
       .result {
         padding: 0 4%;
         padding-bottom: 1.2rem;
         .result-content {
-          margin-top: 1rem;
+          margin-top: 0.8rem;
+          .progress{
+            // padding: 0 4%;
+            display: flex;
+            align-items: center;
+          }
+          .clip-background{
+          width:76%;
+          background-color:rgb(231, 232, 243);
+          height:8px;
+          border-radius:4px;
+          margin-right: 12px;
+          .clip{
+            background-color: rgb(84, 131, 255);;
+            height:8px;
+            border-radius: 4px;
+          }}
         }
       }
     }
