@@ -101,7 +101,7 @@
           <p>{{$t("proposal_content.substance.content3.stage_end") }}</p>
           <h5>{{ $t("proposal_content.substance.content3.ending") }}</h5>
         </div>
-        <div class="vote">
+        <div class="vote" v-if="this.canVote">
           <div class="voteText">
             <div>{{ $t("home.vote") }}</div>
           </div>
@@ -281,16 +281,14 @@ export default {
         if (gscatter.identity) {
           let account = gscatter.identity.accounts.find(x => x.blockchain === 'gxc')
           this.accountName = account.name
+          this.getvoted();
         }
     })
-    console.log('12',this.accountName)
     this.getVoter()
     this.getEndTime()
     this.timer = setInterval(()=>{
       this.getVoter()
-      this.getNoStopVote()
     },3000);
-    this.getVoteResult()
     this.getStartTime()
   },
   methods: {
@@ -303,7 +301,6 @@ export default {
         }
       })
       console.log(...arguments)
-      this.logs.push({ time: new Date(), text: combined.join('\n--------------\n') })
     },
     async login(){
       if(!GScatterJS.gscatter.isExtension){
@@ -332,6 +329,8 @@ export default {
           message:this.$t("home.signed"),
             type: 'success'
           });
+          this.index = 0;
+          this.disabled = true;
       } catch (err) {
         // no identity found
         this.output(err)
@@ -369,6 +368,7 @@ export default {
         }
       }).then((resp)=>{
         this.votingstate = resp.data.votingstate
+        console.log(resp.data)
       }).catch(resp => {
         console.log(this.$t("home.request")+resp.status+','+resp.statusText);
         this.$message({
@@ -391,8 +391,8 @@ export default {
           });
       }else{
         this.loading = true
-        if(!this.votingstate){
-          if(this.index === 1){
+        if(this.index === 1){
+          if(this.votingstate!=true){
             this.$alert(!flag?this.$t("home.support"):this.$t("home.change_support"), this.$t("home.vote"), {
               confirmButtonText: this.$t("home.yes"),
               callback: (action) => {
@@ -421,13 +421,13 @@ export default {
             })
           }else{
             this.$message({
-              message:this.$t("home.cast_disagree"),
+              message:this.$t("home.cast_agree"),
               type: 'error'
             });
             this.loading = false;
           }
         }else{
-          if(this.index === 2){
+          if(this.votingstate!=false){
             this.$alert(!flag?this.$t("home.no_support"):this.$t("home.change_noSupport"), this.$t("home.vote"), {
               confirmButtonText: this.$t("home.yes"),
               callback: (action) => {
@@ -456,7 +456,7 @@ export default {
             })
           }else{
             this.$message({
-              message:this.$t("home.cast_agree"),
+              message:this.$t("home.cast_disagree"),
               type: 'error'
             });
             this.loading = false;
@@ -508,6 +508,7 @@ export default {
         url:`${process.env.__SERVICE__}/proposal/api/state`
       }).then((resp)=>{
         this.canVote = resp.data.canVote;
+        this.getVoteResult();
       }).catch(resp => {
         console.log(this.$t("home.request") +resp.status+','+resp.statusText);
         this.$message({
@@ -556,6 +557,9 @@ export default {
         });
       }else{
         this.getNoStopVote()
+        this.timer = setInterval(()=>{
+            this.getNoStopVote()
+        },3000);
       }
     },
     //选择yes or no
